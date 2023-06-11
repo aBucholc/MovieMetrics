@@ -2,7 +2,6 @@ package com.example.moviemetrics.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.query.sql.internal.ParameterRecognizerImpl;
 
 @Getter
 @Setter
