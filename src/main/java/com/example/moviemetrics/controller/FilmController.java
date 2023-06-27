@@ -37,7 +37,6 @@ public class FilmController {
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
-//                FilmResponse filmResponse = gson.fromJson(response.body().string(), FilmResponse.class);
                 String jsonResponse = response.body().string();
                 FilmResponse filmResponse = mapJsonToFilmResponse(jsonResponse);
                 return filmResponse;
@@ -61,6 +60,7 @@ public class FilmController {
             film.setTitle(filmResponse.getTitle());
             film.setYear(filmResponse.getYear());
             film.setDirector(filmResponse.getDirector());
+            film.setImdbRating(filmResponse.getImdbRating());
 
             filmService.saveFilm(film);
 
@@ -79,6 +79,7 @@ public class FilmController {
         filmResponse.setTitle(jsonObject.get("Title").getAsString());
         filmResponse.setYear(jsonObject.get("Year").getAsInt());
         filmResponse.setDirector(jsonObject.get("Director").getAsString());
+        filmResponse.setImdbRating(jsonObject.get("imdbRating").getAsDouble());
 
         return filmResponse;
     }

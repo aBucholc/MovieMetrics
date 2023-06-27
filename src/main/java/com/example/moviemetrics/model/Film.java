@@ -23,4 +23,7 @@ public class Film {
 
     @Column
     private int year;
+
+    @Column
+    private Double imdbRating;
 }
