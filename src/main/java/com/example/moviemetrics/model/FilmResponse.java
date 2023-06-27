@@ -13,4 +13,5 @@ public class FilmResponse {
     private String title;
     private int year;
     private String director;
+    private Double imdbRating;
 }

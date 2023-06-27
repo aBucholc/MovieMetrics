@@ -13,4 +13,5 @@ public class FilmDetails {
     private String title;
     private String year;
     private String director;
+    private Double imdbRating;
 }
