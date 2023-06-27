@@ -1,10 +1,10 @@
 package com.example.moviemetrics.controller;
 
 import com.example.moviemetrics.model.Film;
-import com.example.moviemetrics.model.FilmDetails;
 import com.example.moviemetrics.model.FilmResponse;
 import com.example.moviemetrics.service.FilmService;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 @RestController
 @RequestMapping("/films")
@@ -29,10 +28,8 @@ public class FilmController {
     }
 
     @GetMapping("/{title}")
-    public String getFilmDetails(@PathVariable("title") String filmTitle) throws UnsupportedEncodingException {
-        String apiKey = "463c6aa3";
-        String encodedFilmTitle = URLEncoder.encode(filmTitle, "UTF-8");
-        String apiUrl = "http://www.omdbapi.com/?apikey=" + apiKey + "&t=" + encodedFilmTitle;
+    public FilmResponse getFilmDetails(@PathVariable("title") String filmTitle) throws UnsupportedEncodingException {
+        String apiUrl = "http://www.omdbapi.com/?i=tt3896198&apikey=b6862a99&t=" + filmTitle;
 
         Request request = new Request.Builder()
                 .url(apiUrl)
@@ -40,28 +37,30 @@ public class FilmController {
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
-                FilmResponse filmResponse = gson.fromJson(response.body().string(), FilmResponse.class);
-                return gson.toJson(filmResponse);
+//                FilmResponse filmResponse = gson.fromJson(response.body().string(), FilmResponse.class);
+                String jsonResponse = response.body().string();
+                FilmResponse filmResponse = mapJsonToFilmResponse(jsonResponse);
+                return filmResponse;
             } else {
                 // Obsługa błędów
-                return "Error: " + response.code();
+//                return "Error: " + response.code();
             }
         } catch (IOException e) {
             // Obsługa wyjątków
             e.printStackTrace();
-            return "Error: " + e.getMessage();
+//            return "Error: " + e.getMessage();
         }
+        return null;
     }
     @PostMapping("/{title}")
     public String saveFilmDetails(@PathVariable("title") String filmTitle) throws UnsupportedEncodingException {
-        String filmDetailsJson = getFilmDetails(filmTitle);
-        FilmDetails filmDetails = gson.fromJson(filmDetailsJson, FilmDetails.class);
+        FilmResponse filmResponse = getFilmDetails(filmTitle);
 
-        if (filmDetails != null) {
+        if (filmResponse != null) {
             Film film = new Film();
-            film.setTitle(filmDetails.getTitle());
-            film.setYear(Integer.parseInt(filmDetails.getYear()));
-            film.setDirector(filmDetails.getDirector());
+            film.setTitle(filmResponse.getTitle());
+            film.setYear(filmResponse.getYear());
+            film.setDirector(filmResponse.getDirector());
 
             filmService.saveFilm(film);
 
@@ -69,6 +68,19 @@ public class FilmController {
         } else {
             return "Failed to save film.";
         }
+    }
+
+
+    private FilmResponse mapJsonToFilmResponse(String jsonResponse) {
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
+
+        FilmResponse filmResponse = new FilmResponse();
+        filmResponse.setTitle(jsonObject.get("Title").getAsString());
+        filmResponse.setYear(jsonObject.get("Year").getAsInt());
+        filmResponse.setDirector(jsonObject.get("Director").getAsString());
+
+        return filmResponse;
     }
 }
 
