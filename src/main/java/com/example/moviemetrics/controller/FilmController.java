@@ -29,7 +29,7 @@ public class FilmController {
 
     @GetMapping("/{title}")
     public FilmResponse getFilmDetails(@PathVariable("title") String filmTitle) throws UnsupportedEncodingException {
-        String apiUrl = "http://www.omdbapi.com/?i=tt3896198&apikey=b6862a99&t=" + filmTitle;
+        String apiUrl = "http://www.omdbapi.com/?i=tt3896198&apikey=YOUR_API_KEY=" + filmTitle;
 
         Request request = new Request.Builder()
                 .url(apiUrl)
